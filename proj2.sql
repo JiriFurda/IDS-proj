@@ -1,3 +1,8 @@
+/**
+ * @brief IDS projekt 2
+ * @author Jiri Furda (xfurda00), Peter Havan (xhavan00)
+*/
+
 ----- Entity -----
 
 CREATE TABLE pojistovny
@@ -131,17 +136,20 @@ INSERT INTO leky(lek_nazev, lek_nutnost_predpisu, lek_cena)
 VALUES ('PABAL', 0, 88);
 
 INSERT INTO leky(lek_nazev, lek_nutnost_predpisu, lek_cena)
-VALUES ('IALUGEN PLUES', 0, 22);
+VALUES ('IALUGEN PLUES', 1, 22);
 
 INSERT INTO pobocky(pobocka_jmeno, pobocka_adresa)
 VALUES ('The pharmacy market', 'Gorkeho 22, 602 00 Brno-stred, Cesko');
 
 INSERT INTO pobocky(pobocka_jmeno, pobocka_adresa)
-VALUES ('Pharmacy Aesculap', 'Dornych 404/4, 602 00 Brno, Èesko');
+VALUES ('Pharmacy Aesculap', 'Dornych 404/4, 602 00 Brno, Cesko');
 
 INSERT INTO rezervace(rezervace_jmeno_zakaznika, rezervace_datum, rezervace_mnozstvi, lek_id, pobocka_id)
 VALUES
 ('Peter Havan', date '2018-04-01', 1, (SELECT lek_id from leky WHERE lek_nazev='PABAL'), (SELECT pobocka_id from pobocky Where pobocka_jmeno='Pharmacy Aesculap'));
+
+INSERT INTO prodeje(prodej_datum, prodej_mnozstvi, prodej_rodne_cislo, lek_id, pobocka_id)
+VALUES(date '2018-04-01', 2, 9707054830, (SELECT lek_id from leky WHERE lek_nazev='IALUGEN PLUES'),  (SELECT pobocka_id from pobocky Where pobocka_jmeno='Pharmacy Aesculap'));
 
 INSERT INTO prodeje(prodej_datum, prodej_mnozstvi, lek_id, pobocka_id)
 VALUES(date '2018-04-02', 1, (SELECT lek_id from leky WHERE lek_nazev='PABAL'),  (SELECT pobocka_id from pobocky Where pobocka_jmeno='Pharmacy Aesculap'));
