@@ -18,24 +18,6 @@ DROP TABLE dodavani CASCADE CONSTRAINTS;
 DROP TABLE uskladneni CASCADE CONSTRAINTS;
 
 ----- Entity -----
-DROP TABLE uskladneni;
-
-DROP TABLE dodavani;
-
-DROP TABLE hrazeni;
-
-DROP TABLE prodeje;
-
-DROP TABLE rezervace;
-
-DROP TABLE pobocky;
-
-DROP TABLE leky;
-
-DROP TABLE dodavatele;
-
-DROP TABLE pojistovny;
-
 CREATE TABLE pojistovny (
     pojistovna_cislo   NUMBER(3) NOT NULL PRIMARY KEY,
     pojistovna_jmeno   VARCHAR2(50) NOT NULL
@@ -97,6 +79,9 @@ CREATE TABLE prodeje (
 
 ----- Entitni vztahy -----
 CREATE TABLE hrazeni (
+    hrazeni_id                 NUMBER
+        GENERATED ALWAYS AS IDENTITY
+    PRIMARY KEY,
     pojistovna_cislo   NUMBER(3) NOT NULL,
     lek_id             NUMBER NOT NULL,
     hrazeni_castka     NUMBER(5),
@@ -107,6 +92,9 @@ CREATE TABLE hrazeni (
 );
 
 CREATE TABLE dodavani (
+    dodavani_id                 NUMBER
+        GENERATED ALWAYS AS IDENTITY
+    PRIMARY KEY,
     dodavatel_id    NUMBER NOT NULL,
     lek_id          NUMBER NOT NULL,
     dodavani_cena   NUMBER(5) NOT NULL,
@@ -117,6 +105,9 @@ CREATE TABLE dodavani (
 );
 
 CREATE TABLE uskladneni (
+    uskladneni_id                 NUMBER
+        GENERATED ALWAYS AS IDENTITY
+    PRIMARY KEY,
     lek_id                NUMBER NOT NULL,
     pobocka_id            NUMBER NOT NULL,
     uskladneni_mnozstvi   NUMBER(6),
