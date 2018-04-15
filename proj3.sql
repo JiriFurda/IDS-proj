@@ -1,7 +1,21 @@
 /**
- * @brief IDS projekt 2
+ * @brief IDS projekt 3
  * @author Jiri Furda (xfurda00), Peter Havan (xhavan00)
 */
+
+
+---------- PROJEKT 2 ----------
+
+----- Vyresetovani databaze -----
+DROP TABLE pojistovny CASCADE CONSTRAINTS;
+DROP TABLE dodavatele CASCADE CONSTRAINTS;
+DROP TABLE leky CASCADE CONSTRAINTS;
+DROP TABLE pobocky CASCADE CONSTRAINTS;
+DROP TABLE rezervace CASCADE CONSTRAINTS;
+DROP TABLE prodeje CASCADE CONSTRAINTS;
+DROP TABLE hrazeni CASCADE CONSTRAINTS;
+DROP TABLE dodavani CASCADE CONSTRAINTS;
+DROP TABLE uskladneni CASCADE CONSTRAINTS;
 
 ----- Entity -----
 DROP TABLE uskladneni;
@@ -24,21 +38,21 @@ DROP TABLE pojistovny;
 
 CREATE TABLE pojistovny (
     pojistovna_cislo   NUMBER(3) NOT NULL PRIMARY KEY,
-    pojistovna_jmeno   VARCHAR2(255) NOT NULL
+    pojistovna_jmeno   VARCHAR2(50) NOT NULL
 );
 
 CREATE TABLE dodavatele (
     dodavatel_id      NUMBER
         GENERATED ALWAYS AS IDENTITY
     PRIMARY KEY,
-    dodavatel_nazev   VARCHAR2(255) NOT NULL
+    dodavatel_nazev   VARCHAR2(50) NOT NULL
 );
 
 CREATE TABLE leky (
     lek_id                 NUMBER
         GENERATED ALWAYS AS IDENTITY
     PRIMARY KEY,
-    lek_nazev              VARCHAR2(255) NOT NULL,
+    lek_nazev              VARCHAR2(50) NOT NULL,
     lek_nutnost_predpisu   NUMBER(1) NOT NULL,
     lek_cena               NUMBER(5) NOT NULL
 );
@@ -47,15 +61,15 @@ CREATE TABLE pobocky (
     pobocka_id       NUMBER
         GENERATED ALWAYS AS IDENTITY
     PRIMARY KEY,
-    pobocka_jmeno    VARCHAR2(255) NOT NULL,
-    pobocka_adresa   VARCHAR2(255) NOT NULL
+    pobocka_jmeno    VARCHAR2(50) NOT NULL,
+    pobocka_adresa   VARCHAR2(50) NOT NULL
 );
 
 CREATE TABLE rezervace (
     rezervace_id                NUMBER
         GENERATED ALWAYS AS IDENTITY
     PRIMARY KEY,
-    rezervace_jmeno_zakaznika   VARCHAR2(255) NOT NULL,
+    rezervace_jmeno_zakaznika   VARCHAR2(50) NOT NULL,
     rezervace_datum             DATE NOT NULL,
     rezervace_mnozstvi          NUMBER(3) NOT NULL,
     lek_id                      NUMBER NOT NULL,
@@ -82,7 +96,6 @@ CREATE TABLE prodeje (
 );
 
 ----- Entitni vztahy -----
-
 CREATE TABLE hrazeni (
     pojistovna_cislo   NUMBER(3) NOT NULL,
     lek_id             NUMBER NOT NULL,
@@ -113,8 +126,8 @@ CREATE TABLE uskladneni (
         REFERENCES pobocky ( pobocka_id )
 );
 
------ Data ----
 
+----- Data ----
 INSERT INTO pojistovny (
     pojistovna_cislo,
     pojistovna_jmeno
@@ -621,73 +634,93 @@ INSERT INTO uskladneni (
     50
 );
 
------ Vyhľadá lieky, ktoré majú sú uskladné na danej pobočke vo väčšom počte, než 5 -----
+---------- PROJEKT 3 ----------
 
+----- Vyhľadá lieky, ktoré majú sú uskladné na danej pobočke vo väčšom počte, než 5 -----
 SELECT
-    uskladneni.uskladneni_mnozstvi,
-    leky.lek_nazev,
-    pobocky.pobocka_jmeno
+	lek_nazev,
+    uskladneni_mnozstvi,
+    pobocka_jmeno
 FROM
     leky
-    INNER JOIN uskladneni ON leky.lek_id = uskladneni.lek_id
-    INNER JOIN pobocky ON uskladneni.pobocka_id = pobocky.pobocka_id
+    NATURAL JOIN uskladneni
+    NATURAL JOIN pobocky
 WHERE
-    uskladneni.uskladneni_mnozstvi > 5;
+    uskladneni_mnozstvi > 5;
 
 ----- Vyhľadá všetky rezervácie na meno Peter Havan -----
-
 SELECT
-    rezervace.rezervace_mnozstvi,
-    rezervace.rezervace_datum,
-    leky.lek_nazev
+	lek_nazev,
+    rezervace_mnozstvi,
+    rezervace_datum
 FROM
     leky
-    INNER JOIN rezervace ON rezervace.lek_id = leky.lek_id
+    NATURAL JOIN rezervace
 WHERE
-    rezervace.rezervace_jmeno_zakaznika = 'Peter Havan';
+    rezervace_jmeno_zakaznika = 'Peter Havan';
 
------ Vyhľadá dátum každého predaja lieku PABAL -----
-
+----- Vyhleda vsechny dny kdy byl prodan lek PABAL -----
 SELECT
-    prodeje.prodej_datum
+    DISTINCT prodej_datum
 FROM
     prodeje
-    INNER JOIN leky ON prodeje.lek_id = leky.lek_id
+    NATURAL JOIN leky
 WHERE
-    leky.lek_nazev = 'PABAL';
+    lek_nazev = 'PABAL';
 
------ Vyhľadá dátum každého predaja lieku PABAL -----
-
+----- Vyhleda vsechny zakazniky, kteri maji zarezervovany nektery lek a spocita celkovy pocet jejich rezervovanych leku -----
 SELECT
-    COUNT(lek_id),
-    rezervace_jmeno_zakaznika
+	rezervace_jmeno_zakaznika,
+    SUM(rezervace_mnozstvi) AS mnozstvi_rezervovanych_leku  
 FROM
     rezervace
 GROUP BY
     rezervace_jmeno_zakaznika;
 
------ Spočíta celkové hradenie jednotlivých poisťovní a vráti tie, ktoré celkovo uhradili viac alebo práve 10 -----    
-
-SELECT
-    SUM(hrazeni.hrazeni_castka) AS celkove_hrazeni,
-    pojistovny.pojistovna_jmeno
+----- Spocita prumernou castku prispevku na lek a vypise jen ty pojistovny, ktere v prumeru prispivaji 5 a vice -----    
+SELECT  
+    pojistovna_jmeno,
+	AVG(hrazeni_castka) AS prumerne_hrazeni
 FROM
     hrazeni
-    INNER JOIN pojistovny ON hrazeni.pojistovna_cislo = pojistovny.pojistovna_cislo
+    NATURAL JOIN pojistovny
 HAVING
-    SUM(hrazeni.hrazeni_castka) >= 10
-group
-    by pojistovny.pojistovna_jmeno;
+    AVG(hrazeni_castka) >= 5
+GROUP
+    BY pojistovny.pojistovna_jmeno;
+    
+----- Vypise nazvy vsech leku, ktere jsou rezervovany -----
+SELECT
+	lek_nazev
+FROM
+	leky
+WHERE
+	EXISTS
+	(
+		SELECT
+			rezervace_id
+		FROM
+			rezervace
+		WHERE 
+			lek_id = leky.lek_id
+	);
 
-/*
-===== For resetting database =====
-DROP TABLE pojistovny;
-DROP TABLE dodavatele;
-DROP TABLE leky;
-DROP TABLE pobocky;
-DROP TABLE rezervace;
-DROP TABLE prodeje;
-DROP TABLE hrazeni;
-DROP TABLE dodavani;
-DROP TABLE uskladneni;
-*/
+----- Vypise vsechny pojistovny, ktere hradi lek PABAL vetsi catskou nez 3 -----
+SELECT
+	pojistovna_jmeno
+FROM
+	pojistovny
+WHERE
+	pojistovna_cislo
+	IN
+	(
+		SELECT
+			pojistovna_cislo
+		FROM
+			hrazeni
+			NATURAL JOIN leky
+		WHERE
+			lek_nazev = 'PABAL'
+			AND hrazeni_castka > 3
+	);
+	
