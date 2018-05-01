@@ -847,3 +847,98 @@ DROP TABLE hrazeni;
 DROP TABLE dodavani;
 DROP TABLE uskladneni;
 */
+
+----- Vymazani zmen opetovneho spusteni -----
+DROP VIEW example_view;
+DROP MATERIALIZED VIEW example_view_materialized;
+
+----- PRISTUPOVA PRAVA -----
+----- Pristupova prava pro druheho clena tymu (xhavan00) -----
+GRANT ALL ON dodavani TO xhavan00;
+GRANT ALL ON dodavatele TO xhavan00;
+GRANT ALL ON leky TO xhavan00;
+GRANT ALL ON pobocky TO xhavan00;
+GRANT ALL ON pojistovny TO xhavan00;
+GRANT ALL ON prodeje TO xhavan00;
+GRANT ALL ON rezervace TO xhavan00;
+GRANT ALL ON uskladneni TO xhavan00;
+
+----- Pristupova prava pro druheho clena tymu (xfurda00) -----
+GRANT ALL ON dodavani TO xfurda00;
+GRANT ALL ON dodavatele TO xfurda00;
+GRANT ALL ON leky TO xfurda00;
+GRANT ALL ON pobocky TO xfurda00;
+GRANT ALL ON pojistovny TO xfurda00;
+GRANT ALL ON prodeje TO xfurda00;
+GRANT ALL ON rezervace TO xfurda00;
+GRANT ALL ON uskladneni TO xfurda00;
+
+
+----- POHLED -----
+----- Vtvoreni pohledu -----
+CREATE VIEW example_view AS
+    SELECT lek_nazev
+    FROM xhavan00.leky
+    WHERE lek_nutnost_predpisu = 0;
+
+CREATE MATERIALIZED VIEW example_view_materialized AS
+        SELECT lek_nazev
+        FROM xhavan00.leky
+        WHERE lek_nutnost_predpisu = 0;
+    
+----- Vlozeni nove polozky -----    
+INSERT INTO xhavan00.leky (
+    lek_nazev,
+    lek_nutnost_predpisu,
+    lek_cena
+) VALUES (
+    'PARAHALEN',
+    0,
+    105
+);
+
+----- Demonstrujici dotaz -----
+SELECT lek_nazev FROM example_view;	-- Obsahuje nove pridanou polozku
+SELECT lek_nazev FROM example_view_materialized;	-- Neobsahuje nove pridanou polozku
+
+
+----- VYSVETLENI PLANU -----
+----- Smazani existujiciho primary key (a indexu) -----
+ALTER TABLE leky
+DROP PRIMARY KEY cascade;
+
+----- Vymazani zmen opetovneho spusteni -----
+DROP INDEX example_index;
+
+----- Vypis planu bez pouziti indexu -----
+EXPLAIN PLAN FOR
+SELECT  
+    lek_nazev,
+    lek_cena,
+	SUM(prodej_mnozstvi) AS celkem_prodani
+FROM
+    leky
+    NATURAL JOIN prodeje
+GROUP BY
+	lek_nazev,
+    lek_cena;
+
+SELECT * FROM TABLE(dbms_xplan.display);
+
+----- Vytvoreni indexu -----
+CREATE UNIQUE INDEX example_index ON leky(lek_id);
+
+----- Vypis planu s pouziti indexu -----
+EXPLAIN PLAN FOR
+SELECT  
+    lek_nazev,
+    lek_cena,
+	SUM(prodej_mnozstvi) AS celkem_prodani
+FROM
+    leky
+    NATURAL JOIN prodeje
+GROUP BY
+	lek_nazev,
+    lek_cena;
+
+SELECT * FROM TABLE(dbms_xplan.display);
