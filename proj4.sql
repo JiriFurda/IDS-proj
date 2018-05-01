@@ -717,6 +717,10 @@ WHERE
 	
 	
 ---------- PROJEKT 4 ----------
+----- Vymazani predchozich zmen -----
+DROP VIEW example_view;
+DROP MATERIALIZED VIEW example_view_materialized;
+
 ----- Pristupova prava pro druheho clena tymu (xhavan00) -----
 GRANT ALL ON dodavani TO xhavan00;
 GRANT ALL ON dodavatele TO xhavan00;
@@ -740,17 +744,16 @@ GRANT ALL ON uskladneni TO xfurda00;
 ----- Vtvoreni pohledu -----
 CREATE VIEW example_view AS
     SELECT lek_nazev
-    FROM leky
+    FROM xhavan00.leky
     WHERE lek_nutnost_predpisu = 0;
 
-CREATE MATERIALIZED VIEW example_view_materialized
-    AS
+CREATE MATERIALIZED VIEW example_view_materialized AS
         SELECT lek_nazev
-        FROM leky
+        FROM xhavan00.leky
         WHERE lek_nutnost_predpisu = 0;
     
 ----- Vlozeni nove polozky -----    
-INSERT INTO leky (
+INSERT INTO xhavan00.leky (
     lek_nazev,
     lek_nutnost_predpisu,
     lek_cena
