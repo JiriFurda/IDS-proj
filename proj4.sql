@@ -835,19 +835,6 @@ INSERT INTO hrazeni (
 EXEC percent_predpis ();
 EXEC najdi_lek ('PARADIM');
 
-/*
-===== For resetting database =====
-DROP TABLE pojistovny;
-DROP TABLE dodavatele;
-DROP TABLE leky;
-DROP TABLE pobocky;
-DROP TABLE rezervace;
-DROP TABLE prodeje;
-DROP TABLE hrazeni;
-DROP TABLE dodavani;
-DROP TABLE uskladneni;
-*/
-
 ----- Vymazani zmen opetovneho spusteni -----
 DROP VIEW example_view;
 DROP MATERIALIZED VIEW example_view_materialized;
@@ -905,7 +892,7 @@ SELECT lek_nazev FROM example_view_materialized;	-- Neobsahuje nove pridanou pol
 ----- VYSVETLENI PLANU -----
 ----- Smazani existujiciho primary key (a indexu) -----
 ALTER TABLE leky
-DROP PRIMARY KEY cascade;
+DROP PRIMARY KEY CASCADE;
 
 ----- Vymazani zmen opetovneho spusteni -----
 DROP INDEX example_index;
@@ -919,6 +906,8 @@ SELECT
 FROM
     leky
     NATURAL JOIN prodeje
+HAVING
+    SUM(prodej_mnozstvi) > 1
 GROUP BY
 	lek_nazev,
     lek_cena;
@@ -937,6 +926,8 @@ SELECT
 FROM
     leky
     NATURAL JOIN prodeje
+HAVING
+    SUM(prodej_mnozstvi) > 1
 GROUP BY
 	lek_nazev,
     lek_cena;
