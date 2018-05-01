@@ -717,7 +717,7 @@ WHERE
 	
 	
 ---------- PROJEKT 4 ----------
------ Pristupova prava pro druheho clena tymu -----
+----- Pristupova prava pro druheho clena tymu (xhavan00) -----
 GRANT ALL ON dodavani TO xhavan00;
 GRANT ALL ON dodavatele TO xhavan00;
 GRANT ALL ON leky TO xhavan00;
@@ -726,3 +726,40 @@ GRANT ALL ON pojistovny TO xhavan00;
 GRANT ALL ON prodeje TO xhavan00;
 GRANT ALL ON rezervace TO xhavan00;
 GRANT ALL ON uskladneni TO xhavan00;
+
+----- Pristupova prava pro druheho clena tymu (xfurda00) -----
+GRANT ALL ON dodavani TO xfurda00;
+GRANT ALL ON dodavatele TO xfurda00;
+GRANT ALL ON leky TO xfurda00;
+GRANT ALL ON pobocky TO xfurda00;
+GRANT ALL ON pojistovny TO xfurda00;
+GRANT ALL ON prodeje TO xfurda00;
+GRANT ALL ON rezervace TO xfurda00;
+GRANT ALL ON uskladneni TO xfurda00;
+
+----- Vtvoreni pohledu -----
+CREATE VIEW example_view AS
+    SELECT lek_nazev
+    FROM leky
+    WHERE lek_nutnost_predpisu = 0;
+
+CREATE MATERIALIZED VIEW example_view_materialized
+    AS
+        SELECT lek_nazev
+        FROM leky
+        WHERE lek_nutnost_predpisu = 0;
+    
+----- Vlozeni nove polozky -----    
+INSERT INTO leky (
+    lek_nazev,
+    lek_nutnost_predpisu,
+    lek_cena
+) VALUES (
+    'PARAHALEN',
+    0,
+    105
+);
+
+----- Demonstrujici dotaz -----
+SELECT lek_nazev FROM example_view;	-- Obsahuje nove pridanou polozku
+SELECT lek_nazev FROM example_view_materialized;	-- Neobsahuje nove pridanou polozku
