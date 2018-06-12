@@ -18,8 +18,8 @@ Subject: **Database Systems (IDS)**
 *Original ERD had to make new purchase record for every item even though it was more pieces of the same medication. This small error hasn't affected the score. The ERD in repository is already fixed.*
 
 ### Project 2 details
-Every table must have primary key (e. g. "hrazeni" or "uskladneni" doesn't have one)
-Missing data format check (e. g. CHECK) - *We thought it's part of project 3*
+* Every table must have primary key (e. g. "hrazeni" or "uskladneni" doesn't have one)
+* Missing data format check (e. g. CHECK) - *We thought it's part of project 3*
 
 ### Project 3 details
 *The project wasn't successfuly uploaded to school system and we found out this fact a week after deadline. Otherwise the project would be rated 5/5.*
